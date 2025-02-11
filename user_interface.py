@@ -148,93 +148,88 @@ def add_text_btn():
 
 def add_logo_btn():
     global logo_img
-    if not logo_img:
-        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp")])
-        if file_path:
-            def watermark_image_w_logo(input_img, logo_path, opacity=100, scale=0.3):
-                width, height = input_img.size
+    file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.bmp")])
+    if file_path:
+        def watermark_image_w_logo(input_img, logo_path, opacity=100, scale=0.3):
+            width, height = input_img.size
 
-                logo = logo_path
+            logo = logo_path
 
-                # Scale the logo based on input image size
-                logo_width = int(width * scale)
-                logo_height = int(logo.height * (logo_width / logo.width))  # Keep aspect ratio
-                logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
+            # Scale
+            logo_width = int(width * scale)
+            logo_height = int(logo.height * (logo_width / logo.width))  # Keep aspect ratio
+            logo = logo.resize((logo_width, logo_height), Image.LANCZOS)
 
-                # Adjust opacity of the logo
-                alpha = logo.split()[3].point(lambda p: p * (opacity / 100))  # Modify alpha channel
-                logo.putalpha(alpha)
+            # Opacity
+            alpha = logo.split()[3].point(lambda p: p * (opacity / 100))
+            logo.putalpha(alpha)
 
-                # Position the logo at the center
-                x = (width - logo_width) // 2
-                y = (height - logo_height) // 2
+            x = (width - logo_width) // 2
+            y = (height - logo_height) // 2
 
-                # Create an overlay
-                overlay = Image.new("RGBA", input_img.size, (255, 255, 255, 0))
-                overlay.paste(logo, (x, y), logo)  # Use logo as mask for transparency
+            overlay = Image.new("RGBA", input_img.size, (255, 255, 255, 0))
+            overlay.paste(logo, (x, y), logo)
 
-                # Merge images
-                watermarked_image = Image.alpha_composite(input_img.convert("RGBA"), overlay)
+            watermarked_image = Image.alpha_composite(input_img.convert("RGBA"), overlay)
 
-                return watermarked_image
+            return watermarked_image
 
-            def apply_logo_watermark():
-                global watermarked_picture
-                global logo_img
-                try:
-                    input_image = edit_image
-                except AttributeError:
-                    print("No image to watermark.")
-                else:
-                    input_logo = logo_img
-                    logo_scale = float(entries[0].get())
-                    opacity = int(entries[1].get())
-                    if input_image and input_logo:
-                        marked_img = watermark_image_w_logo(input_image, input_logo, scale=logo_scale, opacity=opacity)
-                        watermarked_picture = marked_img
+        def apply_logo_watermark():
+            global watermarked_picture
+            try:
+                input_image = edit_image
+            except AttributeError:
+                print("No image to watermark.")
+            else:
+                input_logo = logo_img
+                logo_scale = float(entries[0].get())
+                opacity = int(entries[1].get())
+                if input_image and input_logo:
+                    marked_img = watermark_image_w_logo(input_image, input_logo, scale=logo_scale, opacity=opacity)
+                    watermarked_picture = marked_img
 
-                        display_image = marked_img.copy()
-                        display_image.thumbnail((1280, 720))
+                    display_image = marked_img.copy()
+                    display_image.thumbnail((1280, 720))
 
-                        photo = ImageTk.PhotoImage(display_image)
-                        label.config(image=photo)
-                        label.image = photo
+                    photo = ImageTk.PhotoImage(display_image)
+                    label.config(image=photo)
+                    label.image = photo
 
-                        label.img = marked_img
+                    label.img = marked_img
 
-                        pane.destroy()
+                    pane.destroy()
 
-            logo_img = Image.open(file_path).convert('RGBA')
+        logo_img = Image.open(file_path).convert('RGBA')
 
-            pane = Toplevel(root)
-            pane.title("Watermark Settings")
-            pane.geometry("400x200")
-            pane.configure(background="#2E2E2E")
-            pane.resizable(False, False)
+        pane = Toplevel(root)
+        pane.title("Watermark Settings")
+        pane.geometry("400x150")
+        pane.configure(background="#2E2E2E")
+        pane.resizable(False, False)
 
-            pane.grid_columnconfigure(0, weight=0)  # Label column
-            pane.grid_columnconfigure(1, weight=1)  # Entry column expands
-            pane.grid_rowconfigure(5, weight=1)  # Pushes buttons to bottom
+        pane.grid_columnconfigure(0, weight=0)  # Label column
+        pane.grid_columnconfigure(1, weight=1)  # Entry column expands
+        pane.grid_rowconfigure(5, weight=1)  # Pushes buttons to bottom
 
-            entries = []
-            labels = [("Logo Scale:", 0.3), ("Opacity:", 60)]
-            for i, (text, default_value) in enumerate(labels):
-                this_label = ttk.Label(pane, text=text, style="Custom.TLabel")
-                this_label.grid(row=i, column=0, pady=5, padx=10, sticky="w")
+        entries = []
+        labels = [("Scale:", 0.3), ("Opacity:", 60)]
+        for i, (text, default_value) in enumerate(labels):
+            this_label = ttk.Label(pane, text=text, style="Custom.TLabel")
+            this_label.grid(row=i, column=0, pady=5, padx=10, sticky="w")
 
-                this_entry = ttk.Entry(pane, style="Custom.TEntry", font=("San Francisco", 16), width=14)
-                this_entry.grid(row=i, column=1, pady=5, padx=10, sticky="w")
-                this_entry.insert(0, default_value)
+            this_entry = ttk.Entry(pane, style="Custom.TEntry", font=("San Francisco", 16), width=14)
+            this_entry.grid(row=i, column=1, pady=5, padx=10, sticky="w")
+            this_entry.insert(0, default_value)
 
-                entries.append(this_entry)
+            entries.append(this_entry)
 
-            button_frame = ttk.Frame(pane, style="Dark.TFrame")
-            button_frame.grid(row=4, column=0, columnspan=2, pady=10)
+        button_frame = ttk.Frame(pane, style="Dark.TFrame")
+        button_frame.grid(row=4, column=0, columnspan=2, pady=10)
 
-            ttk.Button(button_frame, text="Save", command=apply_logo_watermark,
-                       style="Apple.TButton").grid(row=0, column=0, padx=10)
-            ttk.Button(button_frame, text="Cancel", command=pane.destroy,
-                       style="Apple.TButton").grid(row=0, column=1, padx=10)
+        ttk.Button(button_frame, text="Save", command=apply_logo_watermark,
+                   style="Apple.TButton").grid(row=0, column=0, padx=10)
+        ttk.Button(button_frame, text="Cancel", command=pane.destroy,
+                   style="Apple.TButton").grid(row=0, column=1, padx=10)
 
 
 def remove_watermark():

@@ -51,13 +51,14 @@ style.map(
     "Apple.TButton",
     background=[("active", "#D4D4D4")],
 )
+# Button Frame
 style.configure(
     "Dark.TFrame",
     background="#2E2E2E"
 )
 
 
-# Watermark Text
+# Watermark Functionality
 def add_text_btn():
 
     def watermark_image(input_img, watermark_text, opacity, text_size):
